@@ -1,6 +1,13 @@
 import TransactionsRepository from '../repositories/TransactionsRepository';
 import Transaction from '../models/Transaction';
 
+interface InsertTransactionDTO {
+  title: string;
+  value: number;
+  type: 'income' | 'outcome';
+  total: number;
+}
+
 class CreateTransactionService {
   private transactionsRepository: TransactionsRepository;
 
@@ -8,8 +15,21 @@ class CreateTransactionService {
     this.transactionsRepository = transactionsRepository;
   }
 
-  public execute(): Transaction {
-    // TODO
+  public execute({
+    title,
+    value,
+    type,
+    total,
+  }: InsertTransactionDTO): Transaction {
+    if (type === 'outcome' && total < value) {
+      throw Error('Not enough cash');
+    }
+
+    const newTransaction = new Transaction({ title, value, type });
+
+    this.transactionsRepository.create(newTransaction);
+
+    return newTransaction;
   }
 }
 
